@@ -1,16 +1,10 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = "postgres://postgres:Dos34ever97@@localhost:5432/test"
 }
 
 model Event {
@@ -23,13 +17,12 @@ model Event {
 }
 
 model Ticket {
-  id    Int     @id @default(autoincrement())
-  owner String
-  code  String
-  used  Boolean @default(false)
-
-  Event   Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  id      Int     @id @default(autoincrement())
+  owner   String
+  code    String
+  used    Boolean @default(false)
   eventId Int
+  Event   Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@unique([eventId, code])
   @@map("tickets")

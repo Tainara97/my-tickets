@@ -10,3 +10,4 @@ const ticketSchema = Joi.object<CreateTicketData>({
 
 export default ticketSchema;
 
+
