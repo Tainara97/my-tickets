@@ -1,7 +1,7 @@
 import prisma from "../src/database";
 import app from "index";
 import supertest from "supertest";
-import { createNewEvent, createNewEventBody } from "./factories/event-test";
+import { createNewEvent, createNewEventBody, wrongTypeEventBody } from "./factories/event-test";
 
 const api = supertest(app);
 
@@ -67,6 +67,22 @@ describe("POST /events", () => {
         expect(status).toBe(409);
         expect(text).toBe(`Event with name ${data.name} already registered.`);
     })
+
+    it("should return 404 for invalid data", async () => {
+        const event = await createNewEvent();
+
+        const { status } = await api.post(`/events/${event.id}`).send({})
+
+        expect(status).toBe(404);
+    })
+
+    it("should return 404 for body with wrong types", async () => {
+        const event = await createNewEvent();
+
+        const { status } = await api.post(`/events/${event.id}`).send(wrongTypeEventBody());
+        
+        expect(status).toBe(404);
+    })
 })
 
 describe("PUT /events/:id", () => {
@@ -100,6 +116,50 @@ describe("PUT /events/:id", () => {
         expect(status).toBe(409);
         expect(text).toBe(`Event with name ${event1.name} already registered.`);
     })
+
+    it("should return 404 when event is not found", async () => {
+        const updateEvent = createNewEventBody();
+
+        const { status, text } = await api
+            .put("/events/9999")
+            .send(updateEvent)
+
+        expect(status).toBe(404);
+        expect(text).toBe("Event with id 9999 not found.");
+    })
+
+    it("should return 422 for invalid data", async () => {
+        const event = await createNewEvent();
+
+        const { status } = await api.put(`/events/${event.id}`).send({})
+
+        expect(status).toBe(422);
+    })
+
+    it("should return 422 for body with wrong types", async () => {
+        const event = await createNewEvent();
+
+        const { status } = await api.put(`/events/${event.id}`).send(wrongTypeEventBody());
+        
+        expect(status).toBe(422);
+    })
+})
+
+describe("DELETE /events/:id", () => {
+    it("should delete an event", async () => {
+        const event = await createNewEvent();
+
+        const { status } = await api.delete(`/events/${event.id}`);
+
+        expect(status).toBe(204);
+    });
+
+    it("should return 404 when event not found", async () => {
+        const { status, text } = await api.delete("/events/9999");
+
+        expect(status).toBe(404);
+        expect(text).toBe("Event with id 9999 not found.")
+    });
 })
 
 afterAll(async () => {

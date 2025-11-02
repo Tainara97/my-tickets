@@ -14,3 +14,10 @@ export async function createNewEvent() {
         data: {name, date}
     })
 }
+
+export function wrongTypeEventBody() {
+    return {
+        name: 123,
+        date: "not-a-date",
+    };
+}
